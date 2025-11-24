@@ -3,7 +3,7 @@ import os
 
 def get_connection():
     return mysql.connector.connect(
-        host="127.0.0.1",
+        host=os.getenv("DB_HOST"),
         port=3306,
         user= os.getenv("DB_USER_NAME"),
         password= os.getenv("DB_PASSWORD"),
