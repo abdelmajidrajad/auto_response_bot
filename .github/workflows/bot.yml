@@ -34,15 +34,7 @@ jobs:
         FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
       run: |
         python main.py
-    
-    - name: Commit and push replied comments
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add replied_comments.txt bot_activity.log
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Update replied comments [skip ci]" && git push)
-      continue-on-error: true
-    
+  
     - name: Upload logs as artifact
       if: always()
       uses: actions/upload-artifact@v4
