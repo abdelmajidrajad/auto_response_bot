@@ -43,32 +43,50 @@ def load_responses():
     return data
 
 # تشغيل البوت
-def run_bot():    
-    print("🤖 Bot is running... (Ctrl + C to stop)")
+def run_bot_once():
     seen_comments = load_seen_comments()
-    last_reload_time = 0
-    reload_interval = 60
+    
+    try:
+        botManager = BotManager()
+        responses_data = load_responses()        
+        posts = botManager.get_all_posts(limit=50)        
+        if not posts:
+            return 0
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(botManager.process_post, post, responses_data, seen_comments) for post in posts]
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        while True:
-            try:
-                botManager = BotManager()
-                current_time = time.time()
-                if current_time - last_reload_time > reload_interval:
-                    responses_data = load_responses()
-                    last_reload_time = current_time
+            processed_count = 0
+            for future in as_completed(futures):
+                try:
+                    result = future.result()
+                    processed_count += 1
+                    if processed_count % 10 == 0:
+                        print(f"📊 Progress: {processed_count}/{len(posts)} posts processed")
+                except Exception as e:
+                    print(f"Error {e}")
 
-                posts = botManager.get_all_posts(limit=50)
-                futures = [executor.submit(botManager.process_post, post, responses_data, seen_comments) for post in posts]
-                for future in as_completed(futures):
-                    future.result()
+        save_seen_comments(seen_comments)
+        return processed_count
+        
+    except Exception as e:
+        print(f"❌ Failed: {e}")
+        raise
 
-                save_seen_comments(seen_comments)
-                time.sleep(10)
+def main():
+    start_time = time.time()
+    print(f"started at {time.ctime(start_time)}")
+    
+    try:
+        posts_processed = run_bot_once()
+        end_time = time.time()
+        duration = end_time - start_time
 
-            except Exception:
-                time.sleep(30)
+        print(f"completed in {duration:.2f} seconds")
+        print(f"📊 Total posts processed: {posts_processed}")
+        
+    except Exception as e:
+        print(f"💥 Error: {e}")
+        raise
 
-# نقطة البداية
 if __name__ == "__main__":
-    run_bot()
+    main()
