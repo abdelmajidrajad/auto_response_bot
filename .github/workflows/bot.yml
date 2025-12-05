@@ -50,5 +50,5 @@ jobs:
         name: bot-logs-${{ github.run_number }}
         path: |
           bot_activity.log
-          logs.txt
+          log.txt
         retention-days: 7
