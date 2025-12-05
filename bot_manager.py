@@ -4,7 +4,7 @@ import re
 import json
 import os
 
-from database_manager import DatabaseManager
+#from database_manager import DatabaseManager
 
 RESPONSES_FILE = os.path.join(os.path.dirname(__file__), "responses.json")
 LOG_FILE = os.path.join(os.path.dirname(__file__), "log.txt")
@@ -14,7 +14,7 @@ class BotManager:
     def __init__(self, access_token=None, page_id=None):
         self.access_token = access_token or os.getenv("FB_ACCESS_TOKEN")
         self.page_id = page_id or os.getenv("FB_PAGE_ID")
-        self.manager = DatabaseManager()
+        #self.manager = DatabaseManager()
         self.session = requests.Session()
         self.session.params = {"access_token": self.access_token}
 
