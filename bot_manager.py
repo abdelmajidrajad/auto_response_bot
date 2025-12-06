@@ -16,6 +16,7 @@ class BotManager:
         #self.manager = DatabaseManager()
         self.session = requests.Session()
         self.session.params = {"access_token": self.access_token}
+        print("🤖 BotManager initialized with page ID:", self.page_id)
 
     # جلب المنشورات
     def get_all_posts(self, limit=50):
@@ -37,6 +38,7 @@ class BotManager:
     def get_all_comments(self, post_id):
         comments = []
         url = f"https://graph.facebook.com/{post_id}/comments?limit=100"
+        print(f"🔄 Fetching comments from URL: {url}")
         while url:
             try:
                 resp = self.session.get(url)
