@@ -30,8 +30,8 @@ class BotManager:
                 data = resp.json()
                 posts.extend(data.get("data", []))
                 url = data.get("paging", {}).get("next")
-            except Exception:
-                print("❌ Error fetching posts.")
+            except Exception as e:
+                print("❌ Error fetching posts. ", e)
                 break
         return posts
 
