@@ -3,11 +3,11 @@ import os
 import json
 
 from bot_manager import BotManager
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # إعدادات الصفحة
-load_dotenv()
+# load_dotenv()
 PAGE_ACCESS_TOKEN = os.getenv("FB_ACCESS_TOKEN")
 PAGE_ID = os.getenv("FB_PAGE_ID")
 
