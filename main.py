@@ -3,13 +3,17 @@ import os
 import json
 
 from bot_manager import BotManager
-#from dotenv import load_dotenv
+from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# إعدادات الصفحة
-# load_dotenv()
-PAGE_ACCESS_TOKEN = os.getenv("FB_ACCESS_TOKEN")
-PAGE_ID = os.getenv("FB_PAGE_ID")
+if os.getenv("GITHUB_ACTIONS") == "true":
+    PAGE_ACCESS_TOKEN = os.getenv("FB_ACCESS_TOKEN")
+    PAGE_ID = os.getenv("FB_PAGE_ID")
+else:
+    from dotenv import load_dotenv
+    load_dotenv()
+    PAGE_ACCESS_TOKEN = os.getenv("FB_ACCESS_TOKEN")
+    PAGE_ID = os.getenv("FB_PAGE_ID")
 
 # ملف الردود الموجود بجانب السكريبت
 RESPONSES_FILE = os.path.join(os.path.dirname(__file__), "responses.json")
