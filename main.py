@@ -48,17 +48,17 @@ def load_responses():
 
 # تشغيل البوت
 def run_bot_once():
-    seen_comments = load_seen_comments()
-    
+    seen_comments = load_seen_comments() #TODO: load seen comments from DB instead of file
+
     try:
         botManager = BotManager(access_token=PAGE_ACCESS_TOKEN, page_id=PAGE_ID)
-        responses_data = load_responses()        
-        posts = botManager.get_all_posts(limit=50) 
-        print(f"📊 Fetched {len(posts)} posts from the page.")
+        #responses_data = load_responses()     #TODO: load rules from DB instead of file
+        posts = botManager.get_all_posts(limit=50)         
+        print(f"📊 Fetched {posts} posts from the page.")
         if not posts:
             return 0
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            futures = [executor.submit(botManager.process_post, post, responses_data, seen_comments) for post in posts]
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            futures = [executor.submit(botManager.process_post, post, seen_comments) for post in posts]
 
             processed_count = 0
             for future in as_completed(futures):
@@ -94,3 +94,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # mockData()

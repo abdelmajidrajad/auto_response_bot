@@ -1,6 +1,6 @@
 CREATE TABLE Rule (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    patterns VARCHAR(500) NOT NULL,
+    patterns JSON NOT NULL,
     response TEXT,
     priority INT NOT NULL DEFAULT 5, -- 1-10
     tag VARCHAR(50) DEFAULT NULL,

@@ -3,7 +3,7 @@ import time
 import re
 import os
 
-#from database_manager import DatabaseManager
+from database_manager import DatabaseManager
 
 RESPONSES_FILE = os.path.join(os.path.dirname(__file__), "responses.json")
 LOG_FILE = os.path.join(os.path.dirname(__file__), "log.txt")
@@ -13,7 +13,7 @@ class BotManager:
     def __init__(self, access_token=None, page_id=None):
         self.access_token = access_token or os.getenv("FB_ACCESS_TOKEN")
         self.page_id = page_id or os.getenv("FB_PAGE_ID")
-        #self.manager = DatabaseManager()
+        self.manager = DatabaseManager()
         self.session = requests.Session()
         self.session.params = {"access_token": self.access_token}
         self.session.headers.update({'User-Agent': 'Mozilla/5.0 (compatible; AutoResponseBot/1.0)', 'Accept': 'application/json'})
@@ -67,26 +67,27 @@ class BotManager:
         except Exception:
             return False
 
-    def match_and_reply(self, post_id, comment, responses_data):        
+    def match_and_reply(self, post_id, comment):        
         comment_id = comment.get("id")
         message = comment.get("message", "").strip()
         if not message:
             return False
-        patterns = get_post_patterns(post_id, responses_data)
-    
-        for pattern, reply in patterns.items():
-            if re.search(pattern, message, re.IGNORECASE):
-                return self.reply_to_comment(comment_id, reply)
+        rules = self.manager.get_global_rules()
+        rules.extend(self.manager.get_post_rules(post_id))
+        for rule in rules:
+            for pattern in rule['patterns']:
+                if re.search(pattern, message, re.IGNORECASE):
+                    return self.reply_to_comment(comment_id, rule['response'])
         return False
 
-    def process_post(self, post, responses_data, seen_comments):
+    def process_post(self, post, seen_comments):
         print(f"🔍 Processing post {post.get('id')}")
         post_id = post.get("id")
         comments = self.get_all_comments(post_id)
         for comment in comments:
             comment_id = comment.get("id")
             if comment_id not in seen_comments:
-                if self.match_and_reply(post_id, comment, responses_data):
+                if self.match_and_reply(post_id, comment):
                     seen_comments.add(comment_id)
 
 # منطق الرد الخاص والعام
