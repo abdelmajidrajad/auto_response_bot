@@ -50,6 +50,24 @@ class BotManager:
             except Exception:
                 break
         return comments
+    
+    def get_comments(self, post_id, since):
+        comments = []
+        if since is None:
+            url = f"https://graph.facebook.com/{post_id}/comments"
+        else:
+            url = f"https://graph.facebook.com/{post_id}/comments?since={since}"
+        print(f"🔄 Fetching comments from URL: {url}")
+        while url:
+            try:
+                resp = self.session.get(url)
+                resp.raise_for_status()
+                data = resp.json()
+                comments.extend(data.get("data", []))
+                url = data.get("paging", {}).get("next")
+            except Exception:
+                break
+        return comments
 
     # الرد على التعليقات
     def reply_to_comment(self, comment_id, message):
@@ -80,15 +98,14 @@ class BotManager:
                     return self.reply_to_comment(comment_id, rule['response'])
         return False
 
-    def process_post(self, post, seen_comments):
+    def process_post(self, post):
         print(f"🔍 Processing post {post.get('id')}")
         post_id = post.get("id")
-        comments = self.get_all_comments(post_id)
+        since = self.manager.get_last_timestamp(post_id)
+        comments = self.get_comments(post_id, since=since)        
         for comment in comments:
-            comment_id = comment.get("id")
-            if comment_id not in seen_comments:
-                if self.match_and_reply(post_id, comment):
-                    seen_comments.add(comment_id)
+            if self.match_and_reply(post_id, comment):
+                self.manager.upsert(post_id, time.time())
 
 # منطق الرد الخاص والعام
 def get_post_patterns(post_id, responses_data):
