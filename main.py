@@ -48,7 +48,7 @@ def load_responses():
 
 # تشغيل البوت
 def run_bot_once():
-    seen_comments = load_seen_comments() #TODO: load seen comments from DB instead of file
+    #seen_comments = load_seen_comments() #TODO: load seen comments from DB instead of file
 
     try:
         botManager = BotManager(access_token=PAGE_ACCESS_TOKEN, page_id=PAGE_ID)
@@ -58,7 +58,7 @@ def run_bot_once():
         if not posts:
             return 0
         with ThreadPoolExecutor(max_workers=1) as executor:
-            futures = [executor.submit(botManager.process_post, post, seen_comments) for post in posts]
+            futures = [executor.submit(botManager.process_post, post) for post in posts]
 
             processed_count = 0
             for future in as_completed(futures):
@@ -69,7 +69,8 @@ def run_bot_once():
                 except Exception as e:
                     print(f"Error {e}")
 
-        save_seen_comments(seen_comments)
+        #save_seen_comments(seen_comments)
+        # botManager
         return processed_count
         
     except Exception as e:

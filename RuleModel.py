@@ -15,13 +15,6 @@ class Rule:
     id: Optional[int] = None
     created_at: Optional[str] = None
 
-    def to_dict(self) -> dict:
-        data = asdict(self)
-        return {k: v for k, v in data.items() if v is not None}
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict(), ensure_ascii=False, indent=2)
-
     @classmethod
     def from_dict(cls, data: dict) -> 'Rule':
         return cls(

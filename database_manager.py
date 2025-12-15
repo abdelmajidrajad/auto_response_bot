@@ -1,3 +1,4 @@
+from typing import Optional
 from database_config import get_connection
 from RuleModel import Rule
 
@@ -91,6 +92,28 @@ class DatabaseManager:
             if rule.get('patterns'):
                 rule['patterns'] = json.loads(rule['patterns'])
         return rules
+
+    def upsert(self, post_id: int, timestamp: float) -> bool:                    
+        query = """
+        INSERT INTO PostTracking (id, timestamp) 
+        VALUES (%s, %s)
+        ON DUPLICATE KEY UPDATE 
+            timestamp = VALUES(timestamp),
+            updated_at = CURRENT_TIMESTAMP
+        """
+        self.cursor.execute(query, (post_id, timestamp))
+        self.conn.commit()
+        return True
+
+    def get_last_timestamp(self, post_id: int) -> Optional[float]:                                  
+        query = "SELECT timestamp FROM PostTracking WHERE id = %s"
+        self.cursor.execute(query, (post_id,))
+        result = self.cursor.fetchone()
+        print(f"🕒 Last timestamp for post {post_id}: {result}")
+        if result:
+            return float(result['timestamp'])
+        else:
+            return None
 
     def close(self):
         self.cursor.close()
